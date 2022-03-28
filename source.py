@@ -18,9 +18,7 @@ def open_and_click(actions,driver,delay,selector=None,xpath=None,**kwargs):
         by=By.CSS_SELECTOR
         sls = WebDriverWait(driver, delay).until(EC.presence_of_all_elements_located((by, selector)))
     if sls:
-        # get accept cookies button element and click
-    
-        
+
         # get buy button element, move to element and click
         if kwargs:
             sel_index=kwargs['choice']
@@ -100,14 +98,22 @@ def open_and_input(actions,driver,delay,input,selector=None,xpath=None,**kwargs)
                 if kwargs['choice'][1]:
                     print("pressing")
                     elem.send_keys(Keys.ENTER)
-def find(actions,driver,delay,selector):
+def find(actions,driver,delay,selector=None,xpath=None):
     try:
-        sls = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((by, selector)))
+        if xpath:
+            by=By.XPATH    
+            sls = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((by, xpath)))
+        else:
+            sls = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((by, selector)))
     
         if sls:
-            elem = driver.find_elements_by_css_selector(selector)
+            if xpath:
+                elem = driver.find_elements_by_xpath(xpath)
+            else:
+                elem = driver.find_elements_by_css_selector(selector)
             return elem
-    except:
+    except Exception as e:
+        
         return None
     
 

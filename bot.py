@@ -1,37 +1,44 @@
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
-import time
-from source import open_and_click,open_and_input
+import time,bs4
+from source import open_and_click,find
 
 class MediumBot:
-    def __init__(self,email,password):
+    def __init__(self,username):
         self.username=username
-        self.password=password
+        
         self.driver = webdriver.Chrome("chromedriver.exe")
+        self.driver.maximize_window()
         self.actions = ActionChains(self.driver)
-        self.gmail_url=r'https://accounts.google.com/signin/v2/identifier?continue='+'https%3A%2F%2Fmail.google.com%2Fmail%2F&service=mail&sacu=1&rip=1'+'&flowName=GlifWebSignIn&flowEntry = ServiceLogin'
-        self.gmail_email_input_selector="/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div/div[1]/div/div[1]/input"
-        self.gmail_password_input_selector="/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div[1]/div/div/div/div/div[1]/div/div[1]/input"
-        self.outlook_url="https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&ct=1648377358&rver=7.0.6737.0&wp=MBI_SSL&wreply=https%3a%2f%2foutlook.live.com%2fowa%2f%3fnlp%3d1%26RpsCsrfState%3d88a20daf-139a-bacd-1069-7c7706897f4a&id=292841&aadredir=1&CBCXT=out&lw=1&fl=dob%2cflname%2cwld&cobrandid=90015"
-        self.medium_signin_xpath="/html/body/div/div/div[3]/div[1]/div/div/div/div[3]/span[4]/div/p/span/a"
-        self.medium_signin_email_xpath="/html/body/div[2]/div/div/div/div[1]/div/div[2]/div[4]/button"
-        self.medium_email_input_xpath="/html/body/div[2]/div/div/div/div[1]/div/div[2]/div/div[1]/div/div/div[2]/div/p/input"
+        self.followers_btn_xpath="/html/body/div/div/div[3]/div/div/div[2]/div/div/div/div[1]/div/div[2]/p/span/button"
+        self.followers_div_xpath="/html/body/div[2]/div/div[1]/div"
+        self.more_followers_btn_selector="//button[contains(text(),'Show more followers')]"
+        
+        self.followers_div_xpath="/html/body/div[2]/div/div[1]/div/div"
+        "/html/body/div[2]/div/div[1]/div/div[22]"
+        
         self.delay=30
-    def login(self):
-        if "gmail" in self.email:
-            target_service=self.gmail_url    
-        elif "outlook" in self.email or "hotmail" in self.email or "live" in self.email:
-            target_service=self.gmail_url
-        self.driver.get("https://medium.com")
-        open_and_click(self.actions,self.driver,self.delay,xpath=self.medium_signin_xpath)
-        time.sleep(2)
-        open_and_click(self.actions,self.driver,self.delay,xpath=self.medium_signin_email_xpath)
-        open_and_input(self.actions,self.driver,self.delay,xpath=self.medium_email_input_xpath,input=self.email,choice=(0,True))
-        self.driver.get(target_service)
-        open_and_input(self.actions,self.driver,self.delay,xpath=self.gmail_email_input_selector,input=self.email,choice=(0,True))
-        time.sleep(5)
-        open_and_input(self.actions,self.driver,self.delay,xpath=self.gmail_password_input_selector,input=self.password,choice=(0,True))
-
+    def open_profile(self):
+        self.driver.get(f"https://medium.com/@{self.username}")
+        number_of_followers=int(find(self.actions,self.driver,self.delay,xpath=self.followers_btn_xpath)[0].get_attribute("textContent").replace("Followers",""))
+        open_and_click(self.actions,self.driver,self.delay,xpath=self.followers_btn_xpath)
+        no_clicks=number_of_followers // 10
+        for i in range(no_clicks):
+            i=find(self.actions,self.driver,self.delay,xpath=self.more_followers_btn_selector)
+            self.driver.execute_script("arguments[0].scrollIntoView();", i[0])
+            self.driver.execute_script("arguments[0].click();", i[0])
+            time.sleep(2)
+        followers_div=find(self.actions,self.driver,self.delay,xpath=self.followers_div_xpath)
+        
+        l=len(followers_div)
+        followers_name=[]
+        for i in range(1,l):
+            innerhtml=followers_div[i].get_attribute("innerHTML")
+            soup = bs4.BeautifulSoup(innerhtml,"html.parser")
+            elements=soup.find_all("a")
+            followers_name.append(elements[0].get_text())
+        print(followers_name)
+            
 if "__main__" == __name__:
-    bot=MediumBot("syed.bilal.sba@gmail.com","inspirehot")
-    bot.login()
+    bot=MediumBot("humble_bee")
+    bot.open_profile()
