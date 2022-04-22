@@ -17,18 +17,32 @@ class MediumBot:
         self.followers_div_xpath="/html/body/div[2]/div/div[1]/div/div"
         self.following_ul_xpath="/html/body/div/div/div[3]/div[1]/div[3]/div/div/div[2]/ul/li"
         self.articles_xpath="/html/body/div[1]/div/div[3]/div/div/main/div/div[2]/div/div/article"
-        self.articles_clap_xpath="/html/body/div/div/div[3]/div/div/main/div/div[3]/footer/div/div/div/div/div[1]/div[1]/span[1]/div/div[2]/div/div/p/button"
-        self.article_title_xpath="/html/body/div/div/div[3]/div/div/main/div/div[3]/div[1]/div/article/div/div[2]/section/div/div[2]/div[1]/h1"
+        self.articles_clap_xpath="/html/body/div/div/div[3]/div/div/main/div/div[2]/footer/div/div/div/div/div[1]/div[1]/span[2]/div/div[2]/div/div/p/button"
+        self.article_read_time_xpath="/html/body/div/div/div[3]/div/div/main/div/div[2]/div[1]/div/article/div/div[2]/header/div[1]/div[1]/div[2]/div[2]/div[2]"
+        self.article_title_selector="h1"
         self.delay=30
+    def GetArticleTitle(self):
+        article_text=find(self.actions,self.driver,self.delay,selector=self.article_title_selector)
+        article_text=article_text[0].get_attribute("innerHTML")
+        return article_text
+    def GetArticleClaps(self):
+        article_clap=find(self.actions,self.driver,self.delay,xpath=self.articles_clap_xpath)
+        article_clap=article_clap[0].get_attribute("innerHTML")
+        return article_clap    
+    def GetArticleReadTime(self):
+        article_read_time=find(self.actions,self.driver,self.delay,xpath=self.article_read_time_xpath)
+        article_read_time=article_read_time[0].get_attribute("innerHTML")
+        return article_read_time
     def GetArticlesData(self,article_links):
         article_data=[]
         for article_link in article_links:
             self.driver.get(article_link)
-            article_header=find(self.actions,self.driver,self.delay,xpath=self.article_title_xpath)
-            print(article_header)
-            innerhtml=article_header[0].get_attribute("innerHTML")
-            # soup=bs4.BeautifulSoup(innerhtml,"html.parser")
-            print(innerhtml)
+            article_text=self.GetArticleTitle()
+            article_clap=self.GetArticleClaps()
+            article_read_time=self.GetArticleReadTime()
+            article_obj=[article_text,article_clap,article_read_time]
+            article_data.append(article_obj)
+        return article_data
     def GetArticles(self):
         self.driver.get(f"https://medium.com/@{self.username}")
         
@@ -48,7 +62,7 @@ class MediumBot:
             innerhtml=article.get_attribute("innerHTML")
             soup=bs4.BeautifulSoup(innerhtml,"html.parser")
             elements=soup.find_all("a")
-            print(elements)
+            
             if len(elements) >1:
                 target=elements[1]
             else:
@@ -104,6 +118,6 @@ class MediumBot:
         print(unfollowers)
 
 if "__main__" == __name__:
-    bot=MediumBot("rebwmorris")
+    bot=MediumBot("paulfrazee")
     bot.GetArticles()
     
