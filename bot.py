@@ -10,11 +10,9 @@ class MediumBot:
         self.driver = webdriver.Chrome("chromedriver")
         self.driver.maximize_window()
         self.actions = ActionChains(self.driver)
-        
-        
-        
-        self.following_number_xpath="/html/body/div/div/div[3]/div[1]/div[3]/div/div/h2"
-        
+        self.following_number_xpath="/html/body/div/div/div[3]/div[1]/div[3/div/div/h2"
+        self.followers_ul_xpath="/html/body/div/div/div[3]/div[1]/div[3]/divdiv/div/h2"
+        self.followers_ul_xpath="/html/body/div/div/div[3]/div[1]/div[3]/div/div/div/h2"
         self.followers_ul_xpath="/html/body/div/div/div[3]/div[1]/div[3]/div/div/div/ul/li"
         self.following_ul_xpath="/html/body/div/div/div[3]/div[1]/div[3]/div/div/div[2]/ul/li"
         self.articles_xpath="/html/body/div[1]/div/div[3]/div/div/main/div/div[2]/div/div/article"
@@ -85,24 +83,7 @@ class MediumBot:
         
     def GetFollowers(self):
         self.driver.get(f"https://medium.com/@{self.username}/followers")
-        # number_of_followers=int(find(self.actions,self.driver,self.delay,xpath=self.followers_btn_xpath)[0].get_attribute("textContent").replace("Followers",""))
-        # open_and_click(self.actions,self.driver,self.delay,xpath=self.followers_btn_xpath)
-        # no_clicks=number_of_followers // 10
-        # for i in range(no_clicks):
-        #     i=find(self.actions,self.driver,self.delay,xpath=self.more_followers_btn_selector)
-        #     self.driver.execute_script("arguments[0].scrollIntoView();", i[0])
-        #     self.driver.execute_script("arguments[0].click();", i[0])
-        #     time.sleep(2)
-        # followers_div=find(self.actions,self.driver,self.delay,xpath=self.followers_div_xpath)
         
-        # l=len(followers_div)
-        # followers_name=[]
-        # for i in range(1,l):
-        #     innerhtml=followers_div[i].get_attribute("innerHTML")
-        #     soup = bs4.BeautifulSoup(innerhtml,"html.parser")
-        #     elements=soup.find_all("a")
-        #     followers_name.append(elements[0].get_text())
-        # print(followers_name)
         number_of_followers=int(find(self.actions,self.driver,self.delay,xpath=self.following_number_xpath)[0].get_attribute("textContent").replace("Followers",""))
         print(number_of_followers)
         scrolls=number_of_followers //8
